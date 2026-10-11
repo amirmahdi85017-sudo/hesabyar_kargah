@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#073763"><title>حساب‌یار UPVC</title>
+<style>
+:root{--navy:#073763;--blue:#0879e8;--bg:#f2f6fb;--green:#12805c;--red:#c24141;--muted:#6b7c90}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Tahoma,Arial,sans-serif;color:#172b43;font-size:14px}
+header{background:linear-gradient(135deg,#06294b,#0879e8);color:white;padding:20px 16px 18px;border-radius:0 0 22px 22px}
+h1{font-size:22px;margin:0 0 6px}header p{margin:0;opacity:.9;font-size:12px}.wrap{padding:14px;max-width:760px;margin:auto}
+.notice{background:#fff8df;border:1px solid #f3d783;padding:10px 12px;border-radius:12px;font-size:12px;line-height:1.8;margin-bottom:12px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card,.panel{background:white;border-radius:15px;padding:14px;box-shadow:0 3px 12px #14385b0b;margin-bottom:12px}
+.card span{display:block;color:var(--muted);font-size:12px;margin-bottom:8px}.card strong{font-size:17px;color:var(--navy)}
+nav{display:flex;gap:6px;overflow:auto;margin:12px 0;padding-bottom:3px}nav button{white-space:nowrap;border:0;background:#dfeaf6;color:var(--navy);padding:11px 13px;border-radius:11px;font-weight:bold}nav button.active{background:var(--blue);color:white}
+h2{font-size:16px;margin:0 0 12px;color:var(--navy)}label{display:block;font-size:12px;color:#52677d;margin:10px 0 5px}
+input,select,textarea{width:100%;border:1px solid #d5e0eb;border-radius:10px;padding:11px;background:white;font:inherit;color:#172b43}input[type=file]{padding:8px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{border:0;border-radius:10px;padding:12px 14px;background:var(--blue);color:white;font-weight:bold;font:inherit;cursor:pointer;margin-top:10px}.btn.secondary{background:#e7eff8;color:var(--navy)}.btn.green{background:var(--green)}.btn.red{background:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:right;border-bottom:1px solid #e6edf4;padding:9px 5px;vertical-align:top}th{color:var(--muted)}.tablewrap{overflow:auto}
+.small{font-size:11px;color:var(--muted);line-height:1.8}.pill{display:inline-block;padding:4px 8px;border-radius:20px;background:#e4f6ee;color:#116a4d;font-size:11px}
+.hidden{display:none!important}.total{background:#edf8f2;border-radius:12px;padding:12px;margin-top:10px;line-height:1.9}.danger{color:var(--red)}.filehint{font-size:12px;line-height:1.8;color:var(--muted)}
+</style></head>
+<body>
+<header><h1>حساب‌یار UPVC</h1><p>حسابداری خرید، فروش، سفارش‌ها و انبار کارگاه</p></header>
+<div class="wrap">
+<div class="notice">نسخه اولیه قابل اجرا در مرورگر اندروید است. اطلاعات در همین دستگاه ذخیره می‌شود؛ برای احتیاط مرتب «پشتیبان‌گیری» بگیر. این نسخه هنوز APK مستقل نیست و استخراج PDF نیاز به بازبینی دارد.</div>
+<div class="cards">
+<div class="card"><span>فروش ثبت‌شده</span><strong id="sales">۰</strong></div>
+<div class="card"><span>هزینه ثبت‌شده</span><strong id="costs">۰</strong></div>
+<div class="card"><span>سود تخمینی سفارش‌ها</span><strong id="profit">۰</strong></div>
+<div class="card"><span>ارزش موجودی (تقریبی)</span><strong id="stockval">۰</strong></div>
+</div>
+<div class="panel"><div class="row"><div><label>نمایش پول</label><select id="currency"><option value="toman">تومان</option><option value="rial">ریال</option></select></div><div><label>پشتیبان‌گیری</label><button class="btn green" style="width:100%" onclick="backup()">دریافت فایل پشتیبان</button></div></div><p class="small">مبنای ذخیره مبلغ‌ها ریال است؛ نمایش تومان با تقسیم بر ۱۰ انجام می‌شود.</p><label>بازیابی فایل پشتیبان</label><input type="file" id="restoreFile" accept=".json,application/json"><button class="btn secondary" onclick="restore()">بازیابی پشتیبان</button></div>
+<nav id="nav">
+<button class="active" data-tab="orders">سفارش‌ها</button><button data-tab="purchases">خریدها</button><button data-tab="inventory">انبار</button><button data-tab="expenses">هزینه‌ها</button><button data-tab="reports">گزارش‌ها</button>
+</nav>
+<section id="orders" class="tab">
+<div class="panel"><h2>ثبت سفارش / فروش</h2>
+<label>نام مشتری</label><input id="oCustomer" placeholder="مثلاً آقای رضایی">
+<div class="row"><div><label>شماره تماس (اختیاری)</label><input id="oPhone" inputmode="tel"></div><div><label>تاریخ</label><input id="oDate" type="date"></div></div>
+<label>شماره پروژه</label><input id="oProject" placeholder="مثلاً 475">
+<label>مبلغ فروش کل (ریال)</label><input id="oSale" inputmode="decimal" placeholder="مثلاً 53445410000">
+<div class="row"><div><label>هزینه مواد این سفارش (ریال)</label><input id="oMaterials" inputmode="decimal" placeholder="از خریدها یا دستی"></div><div><label>دستمزد، نصب و حمل (ریال)</label><input id="oLabor" inputmode="decimal"></div></div>
+<label>سایر هزینه‌های سفارش (ریال)</label><input id="oOther" inputmode="decimal">
+<div class="row"><div><label>پیش‌پرداخت مشتری (ریال)</label><input id="oPaid" inputmode="decimal"></div><div><label>وضعیت</label><select id="oStatus"><option>در حال انجام</option><option>تحویل شده</option><option>تسویه شده</option></select></div></div>
+<button class="btn" onclick="addOrder()">ثبت سفارش</button>
+<hr style="border:0;border-top:1px solid #e6edf4;margin:18px 0">
+<h2>وارد کردن اطلاعات از PDF ای‌ویندور</h2>
+<input type="file" id="pdfFile" accept=".pdf,application/pdf">
+<p class="filehint">انتخاب فایل PDF این نسخه فقط فایل را برای پردازش آزمایشی می‌خواند؛ استخراج مستقیم متن PDF در این نسخه تضمین نشده. پس از انتخاب، اطلاعاتی که از PDF قابل شناسایی باشد نمایش داده می‌شود تا بررسی و تأیید کنی.</p>
+<button class="btn secondary" onclick="readPdf()">بررسی PDF</button><div id="pdfResult" class="small"></div>
+</div>
+<div class="panel"><h2>سفارش‌های ثبت‌شده</h2><div class="tablewrap"><table><thead><tr><th>پروژه / مشتری</th><th>فروش</th><th>هزینه</th><th>سود تخمینی</th><th></th></tr></thead><tbody id="orderRows"></tbody></table></div></div>
+</section>
+<section id="purchases" class="tab hidden"><div class="panel"><h2>ثبت خرید</h2>
+<label>کالا</label><input id="pName" placeholder="پروفیل سفید، شیشه دوجداره، لولا...">
+<div class="row"><div><label>دسته‌بندی</label><select id="pCat"><option>پروفیل</option><option>شیشه</option><option>گالوانیزه</option><option>یراق‌آلات</option><option>نوار و متعلقات</option><option>سایر</option></select></div><div><label>واحد</label><select id="pUnit"><option>متر</option><option>مترمربع</option><option>عدد</option><option>ست</option><option>شاخه</option><option>کیلوگرم</option></select></div></div>
+<div class="row"><div><label>مقدار</label><input id="pQty" inputmode="decimal"></div><div><label>قیمت واحد (ریال)</label><input id="pPrice" inputmode="decimal"></div></div>
+<div class="row"><div><label>نام فروشنده</label><input id="pVendor"></div><div><label>تاریخ خرید</label><input id="pDate" type="date"></div></div>
+<div class="row"><div><label>تخفیف (ریال)</label><input id="pDiscount" inputmode="decimal" value="0"></div><div><label>حمل (ریال)</label><input id="pShip" inputmode="decimal" value="0"></div></div>
+<label>یادداشت / شماره فاکتور</label><input id="pNote">
+<button class="btn" onclick="addPurchase()">ثبت خرید نقدی</button></div>
+<div class="panel"><h2>ریز خریدها</h2><div class="tablewrap"><table><thead><tr><th>تاریخ / کالا</th><th>مقدار</th><th>مبلغ نهایی</th><th>فروشنده</th><th></th></tr></thead><tbody id="purchaseRows"></tbody></table></div></div></section>
+<section id="inventory" class="tab hidden"><div class="panel"><h2>مصرف مواد در سفارش</h2><p class="small">در نسخه اولیه، مصرف را دستی وارد می‌کنی. ثبت مصرف از انبار به‌صورت خودکار در مرحله بعدی اضافه می‌شود تا با ساختار واقعی انبارت هماهنگ شود.</p>
+<label>انتخاب خرید / کالا</label><select id="usePurchase"></select><div class="row"><div><label>مقدار مصرف</label><input id="useQty" inputmode="decimal"></div><div><label>شماره پروژه</label><input id="useProject"></div></div><button class="btn" onclick="useStock()">ثبت مصرف</button></div>
+<div class="panel"><h2>موجودی تقریبی بر اساس خرید و مصرف</h2><div class="tablewrap"><table><thead><tr><th>کالا</th><th>خرید</th><th>مصرف</th><th>مانده</th><th>ارزش تقریبی</th></tr></thead><tbody id="stockRows"></tbody></table></div></div></section>
+<section id="expenses" class="tab hidden"><div class="panel"><h2>ثبت هزینه کارگاه</h2><label>شرح هزینه</label><input id="eName" placeholder="اجاره، برق، تعمیرات..."><div class="row"><div><label>مبلغ (ریال)</label><input id="eAmount" inputmode="decimal"></div><div><label>تاریخ</label><input id="eDate" type="date"></div></div><button class="btn" onclick="addExpense()">ثبت هزینه</button></div><div class="panel"><h2>هزینه‌های ثبت‌شده</h2><div class="tablewrap"><table><thead><tr><th>تاریخ</th><th>شرح</th><th>مبلغ</th><th></th></tr></thead><tbody id="expenseRows"></tbody></table></div></div></section>
+<section id="reports" class="tab hidden"><div class="panel"><h2>گزارش‌ها</h2><div id="reportText"></div><button class="btn secondary" onclick="exportCsv()">خروجی سفارش‌ها CSV</button><p class="small">سود گزارش‌شده تخمینی است و فقط بر پایه هزینه‌هایی است که ثبت کرده‌ای. هزینه مواد را دوباره از خریدها کم نکن اگر قبلاً در هزینه سفارش وارد شده است.</p></div></section>
+</div>
+<script>
+const KEY='hesabyar_upvc_v1'; let db=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{orders:[],purchases:[],expenses:[],uses:[]}}catch(e){return {orders:[],purchases:[],expenses:[],uses:[]}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+function num(id){let v=(document.getElementById(id).value||'').replace(/[٬,\s]/g,'');return Number(v)||0}
+function val(id){return document.getElementById(id).value.trim()}
+function money(n){n=Number(n)||0;if(document.getElementById('currency').value==='toman')n/=10;return Math.round(n).toLocaleString('fa-IR')+' '+(document.getElementById('currency').value==='toman'?'تومان':'ریال')}
+function dateDefault(id){let e=document.getElementById(id);if(!e.value)e.value=new Date().toISOString().slice(0,10)}
+['oDate','pDate','eDate'].forEach(dateDefault);
+document.getElementById('currency').addEventListener('change',render);
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab));render()});
+function addOrder(){let sale=num('oSale');if(!val('oCustomer')||sale<=0){alert('نام مشتری و مبلغ فروش را وارد کن.');return}
+db.orders.unshift({id:Date.now(),customer:val('oCustomer'),phone:val('oPhone'),date:val('oDate'),project:val('oProject'),sale,materials:num('oMaterials'),labor:num('oLabor'),other:num('oOther'),paid:num('oPaid'),status:val('oStatus')});['oCustomer','oPhone','oProject','oSale','oMaterials','oLabor','oOther','oPaid'].forEach(x=>document.getElementById(x).value='');save();alert('سفارش ثبت شد.')}
+function addPurchase(){let qty=num('pQty'),price=num('pPrice');if(!val('pName')||qty<=0||price<0){alert('نام کالا، مقدار و قیمت واحد را درست وارد کن.');return}
+let total=Math.max(0,qty*price-num('pDiscount')+num('pShip'));db.purchases.unshift({id:Date.now(),name:val('pName'),cat:val('pCat'),unit:val('pUnit'),qty,price,vendor:val('pVendor'),date:val('pDate'),discount:num('pDiscount'),ship:num('pShip'),total,note:val('pNote')});['pName','pQty','pPrice','pVendor','pNote'].forEach(x=>document.getElementById(x).value='');document.getElementById('pDiscount').value='0';document.getElementById('pShip').value='0';save();alert('خرید ثبت شد.')}
+function addExpense(){if(!val('eName')||num('eAmount')<=0){alert('شرح و مبلغ هزینه را وارد کن.');return}db.expenses.unshift({id:Date.now(),name:val('eName'),amount:num('eAmount'),date:val('eDate')});document.getElementById('eName').value='';document.getElementById('eAmount').value='';save()}
+function useStock(){let p=db.purchases.find(x=>x.id===Number(val('usePurchase'))),qty=num('useQty');if(!p||qty<=0){alert('کالا و مقدار مصرف را انتخاب کن.');return}let used=db.uses.filter(x=>x.purchaseId===p.id).reduce((a,x)=>a+x.qty,0);if(qty>p.qty-used){alert('مقدار مصرف از موجودی تقریبی بیشتر است.');return}db.uses.unshift({id:Date.now(),purchaseId:p.id,qty,project:val('useProject')});document.getElementById('useQty').value='';save()}
+function del(type,id){if(!confirm('این مورد حذف شود؟'))return;db[type]=db[type].filter(x=>x.id!==id);save()}
+function render(){let sales=db.orders.reduce((a,x)=>a+x.sale,0),costs=db.orders.reduce((a,x)=>a+x.materials+x.labor+x.other,0)+db.purchases.reduce((a,x)=>a+x.total,0)+db.expenses.reduce((a,x)=>a+x.amount,0),profit=db.orders.reduce((a,x)=>a+x.sale-x.materials-x.labor-x.other,0)-db.expenses.reduce((a,x)=>a+x.amount,0);
+document.getElementById('sales').textContent=money(sales);document.getElementById('costs').textContent=money(costs);document.getElementById('profit').textContent=money(profit);
+let stockVal=0;db.purchases.forEach(p=>{let used=db.uses.filter(x=>x.purchaseId===p.id).reduce((a,x)=>a+x.qty,0);stockVal+=Math.max(0,p.qty-used)*p.price});document.getElementById('stockval').textContent=money(stockVal);
+document.getElementById('orderRows').innerHTML=db.orders.map(o=>`<tr><td>${esc(o.project||'—')}<br>${esc(o.customer)}<br><span class="small">${esc(o.date)} · ${esc(o.status)}</span></td><td>${money(o.sale)}<br><span class="small">دریافتی: ${money(o.paid)}</span></td><td>${money(o.materials+o.labor+o.other)}</td><td>${money(o.sale-o.materials-o.labor-o.other)}</td><td><button class="btn red" onclick="del('orders',${o.id})">حذف</button></td></tr>`).join('')||'<tr><td colspan="5">هنوز سفارشی ثبت نشده.</td></tr>';
+document.getElementById('purchaseRows').innerHTML=db.purchases.map(p=>`<tr><td>${esc(p.date)}<br>${esc(p.name)}<br><span class="small">${esc(p.cat)} · ${esc(p.unit)}</span></td><td>${p.qty.toLocaleString('fa-IR')} ${esc(p.unit)}<br>${money(p.price)} / واحد</td><td>${money(p.total)}</td><td>${esc(p.vendor||'—')}<br>${esc(p.note||'')}</td><td><button class="btn red" onclick="del('purchases',${p.id})">حذف</button></td></tr>`).join('')||'<tr><td colspan="5">هنوز خریدی ثبت نشده.</td></tr>';
+let sel=document.getElementById('usePurchase'),old=sel.value;sel.innerHTML=db.purchases.map(p=>`<option value="${p.id}">${esc(p.name)} (${p.qty.toLocaleString('fa-IR')} ${esc(p.unit)})</option>`).join('');if(old)sel.value=old;
+let stock={};db.purchases.forEach(p=>{let k=p.name+'|'+p.unit;if(!stock[k])stock[k]={name:p.name,unit:p.unit,buy:0,use:0,value:0};stock[k].buy+=p.qty;stock[k].value+=p.qty*p.price;db.uses.filter(x=>x.purchaseId===p.id).forEach(x=>stock[k].use+=x.qty)});document.getElementById('stockRows').innerHTML=Object.values(stock).map(s=>`<tr><td>${esc(s.name)}<br>${esc(s.unit)}</td><td>${s.buy.toLocaleString('fa-IR')}</td><td>${s.use.toLocaleString('fa-IR')}</td><td>${(s.buy-s.use).toLocaleString('fa-IR')}</td><td>${money(Math.max(0,s.value-s.use*(s.buy?s.value/s.buy:0)))}</td></tr>`).join('')||'<tr><td colspan="5">هنوز کالایی ثبت نشده.</td></tr>';
+document.getElementById('expenseRows').innerHTML=db.expenses.map(e=>`<tr><td>${esc(e.date)}</td><td>${esc(e.name)}</td><td>${money(e.amount)}</td><td><button class="btn red" onclick="del('expenses',${e.id})">حذف</button></td></tr>`).join('')||'<tr><td colspan="4">هزینه‌ای ثبت نشده.</td></tr>';
+document.getElementById('reportText').innerHTML=`<p>تعداد سفارش: <b>${db.orders.length.toLocaleString('fa-IR')}</b></p><p>مجموع فروش: <b>${money(sales)}</b></p><p>هزینه‌های کارگاه: <b>${money(db.expenses.reduce((a,x)=>a+x.amount,0))}</b></p><p>سود تخمینی سفارش‌ها پس از هزینه‌های واردشده: <b>${money(profit)}</b></p><p>تعداد فاکتور خرید: <b>${db.purchases.length.toLocaleString('fa-IR')}</b></p>`;
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function backup(){let b=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='hesabyar-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)}
+function restore(){let f=document.getElementById('restoreFile').files[0];if(!f){alert('اول فایل پشتیبان را انتخاب کن.');return}let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.orders)||!Array.isArray(d.purchases))throw 0;if(confirm('اطلاعات فعلی با فایل پشتیبان جایگزین شود؟')){db=d;save();alert('بازیابی انجام شد.')}}catch(e){alert('فایل پشتیبان معتبر نیست.')}};r.readAsText(f)}
+function exportCsv(){let rows=[['پروژه','مشتری','تاریخ','فروش ریال','مواد ریال','دستمزد و نصب ریال','سایر هزینه ریال','سود تخمینی ریال'],...db.orders.map(o=>[o.project,o.customer,o.date,o.sale,o.materials,o.labor,o.other,o.sale-o.materials-o.labor-o.other])];let csv='\ufeff'+rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='hesabyar-orders.csv';a.click();URL.revokeObjectURL(a.href)}
+async function readPdf(){let f=document.getElementById('pdfFile').files[0],out=document.getElementById('pdfResult');if(!f){alert('اول فایل PDF را انتخاب کن.');return}out.textContent='فایل انتخاب شد: '+f.name+' ('+Math.round(f.size/1024)+' کیلوبایت). برای استخراج خودکار متن PDF در این نسخه هنوز موتور PDF تعبیه نشده است؛ فعلاً مقادیر جمع کل، طول پروفیل و شیشه را از روی فایل وارد کن.'}
+render();
+</script></body></html>
